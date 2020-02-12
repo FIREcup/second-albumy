@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, Blueprint
 from flask_login import current_user, logout_user, login_user, login_required, login_fresh, confirm_login
 
 from ..emails import send_confirm_email, send_reset_password_email
-from .. import db
+from ..extensions import db
 from ..forms.auth import LoginForm, RegisterForm, ForgetPasswordForm, ResetPasswordForm
 from ..models import User
 from ..settings import Operations
