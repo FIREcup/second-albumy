@@ -237,7 +237,7 @@ def delete_comment(comment_id):
 
 
 @main_bp.route('/tag/<int:tag_id>', defaults={'order': 'by_time'})
-@main_bp.route('/tag/<int:tag_id/<order>')
+@main_bp.route('/tag/<int:tag_id>/<order>')
 def show_tag(tag_id, order):
     tag = Tag.query.get_or_404(tag_id)
     page = request.args.get('page', 1, type=int)
