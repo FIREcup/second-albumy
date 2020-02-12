@@ -19,9 +19,10 @@ def create_app(config_name=None):
     app = Flask('albumy')
     app.config.from_object(config[config_name])
     register_extensions(app)
-    register_commands(app)
     register_blueprints(app)
-    register_extensions(app)
+    register_commands(app)
+    register_errorhandler(app)
+    register_template_context(app)
 
     return app
 
