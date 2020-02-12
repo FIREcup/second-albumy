@@ -4,8 +4,13 @@ import click
 from flask import Flask, render_template
 
 from .blueprints.main import main_bp
+from .blueprints.user import user_bp
+from .blueprints.auth import auth_bp
+from flask_wtf.csrf import CSRFError
 from .extensions import bootstrap, db, mail, moment, dropzone, csrf, avatar
+from .extensions import csrf, login_manager
 from .settings import config
+from .models import Role
 
 
 def create_app(config_name=None):
@@ -14,6 +19,10 @@ def create_app(config_name=None):
 
     app = Flask('albumy')
     app.config.from_object(config[config_name])
+    register_extensions(app)
+    register_commands(app)
+    register_blueprints(app)
+    register_extensions(app)
 
     return app
 
@@ -26,10 +35,13 @@ def register_extensions(app):
     dropzone.init_app(app)
     csrf.init_app(app)
     avatar.init_app(app)
+    login_manager.init_app(app)
 
 
 def register_blueprints(app):
     app.register_blueprint(main_bp)
+    app.register_blueprint(user_bp, url_prefix='/user')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
 
 
 def register_template_context(app):
@@ -53,6 +65,11 @@ def register_errorhandler(app):
     def internal_server_error(e):
         return render_template('errors/500.html'), 500
 
+    @app.errorhander(CSRFError)
+    def handle_csrf_error(e):
+        return render_template('errors/400.html', description=e.description), 400
+
+
 
 def register_commands(app):
     @app.cli.command()
@@ -75,6 +92,27 @@ def register_commands(app):
         click.echo('Done.')
 
     @app.cli.command()
-    def forge():
+    @click.option('--user', default=10, help='Quantity of users, default is 10.')
+    @click.option('--photo', default=30, help='Quantity of photos, default is 500.')
+    @click.option('--tag', default=20, help='Quantity of tags, default is 500.')
+    @click.option('--comment', default=100, help='Quantity of comments, default is 500.')
+    def forge(user, photo, tag, comment):
         """Generate fake data."""
-        pass
+        from .fakes import fake_admin, fake_comment, fake_photo, fake_tag, fake_user
+
+        db.drop_all()
+        db.create_all()
+
+        click.echo('Initializing the roles and permissions...')
+        Role.init_role()
+        click.echo('Generating the administrator...')
+        fake_admin()
+        click.echo('Generating {} users...'.format(user))
+        fake_user(user)
+        click.echo('Generating {} tags...'.format(tag))
+        fake_tag(tag)
+        click.echo('Generating {} photos...'.format(photo))
+        fake_photo(photo)
+        click.echo('Generating {} comments...'.format(comment))
+        fake_comment(comment)
+        click.echo('Done.')
