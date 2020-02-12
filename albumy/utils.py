@@ -3,7 +3,7 @@ from flask import request, redirect, flash, url_for, current_app
 from itsdangerous import BadSignature, SignatureExpired
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
-from . import db
+from .extensions import db
 from .models import User
 from .settings import Operations
 import os
@@ -13,7 +13,7 @@ from PIL import Image
 
 
 def is_safe_url(target):
-    ref_url =  urlparse(request.host_url)
+    ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
         ref_url.netloc == test_url.netloc
