@@ -71,7 +71,7 @@ def show_photo(photo_id):
                            tag_form=tag_form, pagination=pagination, comments=comments)
 
 
-@main_bp.route('/photo/n/<int:photo_id')
+@main_bp.route('/photo/n/<int:photo_id>')
 def photo_next(photo_id):
     photo = Photo.query.get_or_404(photo_id)
     photo_n = Photo.query.with_parent(photo.author).filter(Photo.id < photo_id).order_by(Photo.id.desc()).first()
