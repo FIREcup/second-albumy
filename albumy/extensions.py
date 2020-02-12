@@ -6,7 +6,6 @@ from flask_login import LoginManager, AnonymousUserMixin
 from flask_dropzone import Dropzone
 from flask_wtf import CSRFProtect
 from flask_avatars import Avatars
-from flask_bootstrap import Bootstrap
 
 
 bootstrap = Bootstrap()

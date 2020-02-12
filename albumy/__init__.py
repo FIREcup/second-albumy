@@ -2,13 +2,12 @@ import os
 
 import click
 from flask import Flask, render_template
+from flask_wtf.csrf import CSRFError
 
 from .blueprints.main import main_bp
 from .blueprints.user import user_bp
 from .blueprints.auth import auth_bp
-from flask_wtf.csrf import CSRFError
-from .extensions import bootstrap, db, mail, moment, dropzone, csrf, avatar
-from .extensions import csrf, login_manager
+from .extensions import bootstrap, db, mail, moment, dropzone, csrf, avatar, login_manager
 from .settings import config
 from .models import Role
 
