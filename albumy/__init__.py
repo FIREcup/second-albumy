@@ -9,7 +9,7 @@ from .blueprints.user import user_bp
 from .blueprints.auth import auth_bp
 from .extensions import bootstrap, db, mail, moment, dropzone, csrf, avatar, login_manager
 from .settings import config
-from .models import Role
+from .models import Role, User, Photo, Tag, Comment
 
 
 def create_app(config_name=None):
@@ -36,6 +36,12 @@ def register_extensions(app):
     csrf.init_app(app)
     avatar.init_app(app)
     login_manager.init_app(app)
+
+
+def register_shell_context(app):
+    @app.shell_context_processor
+    def make_shell_context():
+        return dict(db=db, User=User, Photo=Photo, Tag=Tag, Comment=Comment)
 
 
 def register_blueprints(app):
