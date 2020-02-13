@@ -107,3 +107,15 @@ def reset_password(token):
     return render_template('auth/reset_password.html', form=form)
 
 
+@auth_bp.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    if current_user.confirmed:
+        return redirect(url_for('main.index'))
+
+    if validate_token(user=current_user, token=token, operation=Operations.CONFIRM):
+        flash('Account confirmed', 'success')
+        return redirect(url_for('main.index'))
+    else:
+        flash('Invalid or expired token', 'danger')
+        return redirect(url_for('.resend_confirm_email'))
