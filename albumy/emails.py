@@ -7,7 +7,7 @@ from .extensions import mail
 
 def _send_async_mail(app, message):
     with app.app_context():
-        mail.send_message(message)
+        mail.send(message)
 
 
 def send_mail(to, subject, template, **kwargs):
