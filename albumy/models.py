@@ -32,6 +32,7 @@ class User(db.Model, UserMixin):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
+        self.generate_avatar()
         self.set_role()
 
     def set_role(self):
