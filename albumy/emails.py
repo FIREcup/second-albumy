@@ -3,13 +3,12 @@ from threading import Thread
 from flask import current_app, render_template
 from flask_mail import Message
 from .extensions import mail
+from celery import Celery
 
-from . import make_celery
-
-celery = make_celery()
+client = Celery('albumy', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
 
 
-@celery.task()
+@client.task
 def _send_async_mail(app, message):
     with app.app_context():
         mail.send(message)
