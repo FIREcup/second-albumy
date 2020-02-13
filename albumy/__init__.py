@@ -10,6 +10,7 @@ from .blueprints.auth import auth_bp
 from .extensions import bootstrap, db, mail, moment, dropzone, csrf, avatar, login_manager
 from .settings import config
 from .models import Role, User, Photo, Tag, Comment
+from celery import Celery
 
 
 def create_app(config_name=None):
@@ -26,6 +27,24 @@ def create_app(config_name=None):
     register_template_context(app)
 
     return app
+
+
+def make_celery(app=None):
+    app = app or create_app(os.getenv('FLASK_CONFIG', 'development'))
+
+    celery = Celery(__name__, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+
+    class ContextTask(TaskBase):
+        abstract = True
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
 
 
 def register_extensions(app):

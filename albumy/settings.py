@@ -49,6 +49,9 @@ class BaseConfig:
     DROPZONE_MAX_FILES = 30
     DROPZONE_ENABLE_CSRF = True
 
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
