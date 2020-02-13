@@ -4,15 +4,17 @@ from flask import current_app, render_template
 from flask_mail import Message
 from .extensions import mail
 
-import celery
+from . import make_celery
+
+celery = make_celery()
 
 
+@celery.task()
 def _send_async_mail(app, message):
     with app.app_context():
         mail.send(message)
 
 
-@celery.task()
 def send_mail(to, subject, template, **kwargs):
     message = Message(current_app.config['ALBUMY_MAIL_SUBJECT_PREFIX'] + subject, recipients=[to])
     message.html = render_template(template + '.html', **kwargs)

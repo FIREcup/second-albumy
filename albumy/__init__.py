@@ -12,8 +12,6 @@ from .settings import config
 from .models import Role, User, Photo, Tag, Comment
 from celery import Celery
 
-celery = Celery('albumy')
-
 
 def create_app(config_name=None):
     if config_name is None:
@@ -21,16 +19,6 @@ def create_app(config_name=None):
 
     app = Flask('albumy')
     app.config.from_object(config[config_name])
-    celery.config_from_object(config[config_name])
-
-    TaskBase = celery.Task
-
-    class ContextTask(TaskBase):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return TaskBase.__call__(self, *args, **kwargs)
-
-    celery.Task = ContextTask
 
     register_extensions(app)
     register_blueprints(app)
@@ -40,6 +28,23 @@ def create_app(config_name=None):
     register_template_context(app)
 
     return app
+
+
+def make_celery(app=None):
+    app = app or create_app()
+    celery = Celery('albumy', broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+
+    class ContextTask(TaskBase):
+        abstract = True
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
 
 
 def register_extensions(app):
