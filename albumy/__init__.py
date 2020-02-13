@@ -11,6 +11,9 @@ from .extensions import bootstrap, db, mail, moment, dropzone, csrf, avatar, log
 from .settings import config
 from .models import Role, User, Photo, Tag, Comment
 from celery import Celery
+from . import celeryconfig
+
+celery = Celery('albumy', broker='redis://localhost:6379/0')
 
 
 def create_app(config_name=None):
@@ -26,25 +29,37 @@ def create_app(config_name=None):
     register_errorhandler(app)
     register_shell_context(app)
     register_template_context(app)
+    register_celery(app)
 
     return app
 
 
-def create_celery_app(app=None):
-    app = app or create_app()
-    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
-    TaskBase = celery.Task
+#def create_celery_app(app=None):
+#    app = app or create_app()
+#    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+#    celery.conf.update(app.config)
+#    TaskBase = celery.Task
+#
+#    class ContextTask(TaskBase):
+#        abstract = True
+#
+#        def __call__(self, *args, **kwargs):
+#            with app.app_context():
+#                return super(TaskBase, self).__call__(*args, **kwargs)
+#
+#    celery.Task = ContextTask
+#    return celery
 
-    class ContextTask(TaskBase):
-        abstract = True
 
+def register_celery(app):
+    celery.config_from_object(celeryconfig)
+
+    class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):
             with app.app_context():
-                return super(TaskBase, self).__call__(*args, **kwargs)
+                return self.run(*args, **kwargs)
 
     celery.Task = ContextTask
-    return celery
 
 
 def register_extensions(app):
