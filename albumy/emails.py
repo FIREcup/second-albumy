@@ -12,7 +12,6 @@ def _send_async_mail(app, message):
 
 def send_mail(to, subject, template, **kwargs):
     message = Message(current_app.config['ALBUMY_MAIL_SUBJECT_PREFIX'] + subject, recipients=[to])
-    message.body = render_template(template + '.txt', **kwargs)
     message.html = render_template(template + '.html', **kwargs)
     app = current_app._get_current_object()
     thr = Thread(target=_send_async_mail, args=[app, message])
