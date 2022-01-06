@@ -2,7 +2,7 @@ amqp==2.5.2
 billiard==3.6.2.0
 blinker==1.4
 Bootstrap-Flask==1.2.0
-celery==4.4.0
+celery==5.2.2
 Click==7.0
 Faker==4.0.0
 Flask==1.1.1
